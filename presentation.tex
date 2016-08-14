@@ -1,0 +1,116 @@
+\documentclass{beamer}
+
+\usepackage{fontspec}
+\usepackage{xltxtra}
+\usepackage{graphicx}
+\usepackage{animate}
+\usepackage{subfig}
+\usepackage{appendixnumberbeamer}
+
+\mode<presentation>{
+  \useoutertheme{shadow}
+  \usetheme{Singapore}
+  \setbeamertemplate{items}[circle square]
+  \setbeamertemplate{navigation symbols}{}%remove navigation symbols
+  \setbeamerfont{block title}{size={}}
+  \setbeamercovered{dynamic}
+}
+
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{institute in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortinstitute\hspace*{10em}
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.6\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle\hspace*{10em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+\title{High performance shared state schedulers}
+\author[AK]{Antonios Kouzoupis\\[1em]{\footnotesize Examiner: Jim
+    Dowling\\Supervisors: Seif Haridi, Gautier Berthou}}
+\institute[KTH/SICS]{}
+
+\titlegraphic{\includegraphics[scale=0.15]{resources/KTH_logo.eps}~
+\includegraphics[scale=0.15]{resources/SICS_logo.eps}}
+
+\date[date]{August 19, 2016}
+
+\setsansfont[Mapping=tex-text]{GFS Didot}
+\setmonofont[Mapping=tex-text, Scale=0.6]{GFS Didot}
+\font\mono="DejaVu Sans Mono" at 9pt
+
+\begin{document}
+
+\section{}
+\begin{frame}
+\titlepage
+\end{frame}
+
+\section*{}
+\begin{frame}
+\frametitle{Outline}
+\footnotesize
+\tableofcontents
+\normalsize
+\end{frame}
+
+\section{Introduction}
+\subsection{Hadoop}
+\begin{frame}
+\frametitle{Apache Hadoop}
+\end{frame}
+
+\begin{frame}
+\frametitle{Apache YARN}
+\end{frame}
+
+\subsection{Hops-YARN}
+\begin{frame}
+\frametitle{MySQL Cluster}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hops-YARN}
+\end{frame}
+
+\begin{frame}
+\frametitle{Shared state schedulers}
+\end{frame}
+
+\section{Implementation}
+\subsection{Foreign key constraints}
+\begin{frame}
+\frametitle{FK constraints}
+\end{frame}
+
+\subsection{Commit system}
+\begin{frame}
+\frametitle{Commit system}
+\end{frame}
+
+\subsection{Garbage Collector service}
+\begin{frame}
+\frametitle{GC service}
+\end{frame}
+
+\subsection{DTO caching mechanism}
+\begin{frame}
+\frametitle{DTO caching}
+\end{frame}
+
+\section{Results}
+\begin{frame}
+\frametitle{Results}
+\end{frame}
+
+\section{Conclusions}
+\begin{frame}
+\frametitle{Conclusions}
+\end{frame}
+
+\end{document}
