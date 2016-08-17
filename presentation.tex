@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{animate}
 \usepackage{subfig}
+\usepackage{listings}
 \usepackage{appendixnumberbeamer}
 
 \mode<presentation>{
@@ -138,7 +139,7 @@ Hops is a new distribution of Apache Hadoop with:
 \item Persist every single heartbeat from AM/NM and subsequent responses
 
 \item<2-> Standby is boring! Standby RMs act as ResourceTrackers
-  receiving heartbeats from NM, load balacing the active RM
+  receiving heartbeats from NM, load balancing the active RM
 \end{itemize}
 \end{frame}
 
@@ -170,6 +171,7 @@ Hops is a new distribution of Apache Hadoop with:
 \item Row-level locking
 \item Shared-nothing architecture
 \item No single point of failure
+\item 2.5 Million SQL Ops/Sec for MySQL Cluster 7.4
 \end{itemize}
 \end{frame}
 
@@ -384,7 +386,7 @@ prolonging the commit time and delaying other blocked TSs
   \texttt{ON DELETE CASCADE} (I have not removed them for this set of tables)
 \item[Allocate Response] Before persisting one Allocate Response,
   remove the previous from the database. So an insert operation,
-  implicitely means an extra deletion operation
+  implicitly means an extra deletion operation
 \end{description}
 \end{frame}
 
@@ -420,7 +422,81 @@ service run on Hops-YARN.
 
 \subsection{DTO caching mechanism}
 \begin{frame}
-\frametitle{DTO caching}
+\frametitle{ClusterJ}
+
+\begin{itemize}
+\item High-level API for performing operations on MySQL Cluster
+\item ORM via specially decorated interfaces
+\item Light-weight but more ``performant'' than other ORM solutions
+  like Hibernate or EclipseLink
+\end{itemize}
+
+\pause
+\centering
+\vfill
+{\color{red} But ClusterJ uses Java Refection API to create DTOs}
+\end{frame}
+
+\begin{frame}
+\frametitle{ClusterJ}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{resources/dto_create_commit_no_cache.png}
+\caption{DTO \texttt{newInstance} and commit time}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Caching mechanism}
+
+\begin{itemize}
+\item DB Sessions with cache containing DTOs created \textbf{ahead of
+    time}
+
+\item In each session, the per-type of DTO cache size is adjusted dynamically
+  according to the demands
+
+\item Two different session pools with cache-disabled and
+  \textbf{cache-enabled} sessions
+
+\item Explicitly request cache-disabled or cache-enabled sessions to
+  avoid the penalty of cache-miss or mark cache-enabled session as
+  used even though the cache is full
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Caching mechanism}
+
+The cache generator service
+\begin{itemize}
+\item Fetches a number of used cache-enabled DB sessions
+
+\item Creates threads that go through every session's cache and for
+  every type instantiate DTOs with the ``slow''
+  \texttt{newInstance} method of ClusterJ until they are full
+
+\item The populated sessions are marked as \emph{ready} and put back
+  in the pool
+
+\item \texttt{GOTO} 1
+\end{itemize}
+
+Parameters of the service and the types of the DTOs to cache are
+  configurable through an XML file
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Hops-YARN session pool}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.2]{resources/db_session_pools.png}
+\end{figure}
 \end{frame}
 
 \section{Results}
