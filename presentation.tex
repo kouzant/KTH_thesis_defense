@@ -375,6 +375,47 @@ that:
 \subsection{Garbage Collector service}
 \begin{frame}
 \frametitle{GC service}
+
+Some operations in the TransactionState still take time to finish
+prolonging the commit time and delaying other blocked TSs
+
+\begin{description}
+\item[RPC] Delete operation on 10 tables with FK constraint,
+  \texttt{ON DELETE CASCADE} (I have not removed them for this set of tables)
+\item[Allocate Response] Before persisting one Allocate Response,
+  remove the previous from the database. So an insert operation,
+  implicitely means an extra deletion operation
+\end{description}
+\end{frame}
+
+\begin{frame}
+\frametitle{GC service}
+
+Instead of removing the old RPCs and Allocate Responses synchronously
+in the Transaction State, persist \textbf{only} \texttt{<rpcid,type>}
+and \texttt{<applicationattemptid,responseid,type>} of old RPCs and
+Allocate Responses in GC tables. No \underline{delete} operations!\\[2em]
+
+Old entries are removed \textbf{asynchronously} by the Garbage Collector
+service run on Hops-YARN.
+\end{frame}
+
+\begin{frame}
+\frametitle{GC service}
+
+\begin{enumerate}
+\item A \emph{worker} thread fetches old RPCs and Allocate Responses from the
+  GC database tables
+
+\item \emph{Worker} spawns threads performing delete operations on the
+  appropriate tables storing RPCs and Allocate Responses, removing old
+  values
+
+\item When all the delete transactions successfully complete, remove
+  the old ``keys'' from the GC tables
+
+\item \texttt{GOTO} 1
+\end{enumerate}
 \end{frame}
 
 \subsection{DTO caching mechanism}
