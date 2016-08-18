@@ -72,8 +72,8 @@
 
 \centering
 \vfill
-``increasing utilization by a few percentage points can save millions
-of dollars''\footnote{Large-scale cluster management at Google with
+\emph{``increasing utilization by a few percentage points can save millions
+of dollars''}\footnote{Large-scale cluster management at Google with
   Borg, Abhishek Verma et al.}
 \end{frame}
 
@@ -294,7 +294,7 @@ The current system guarantees order of TSs and parallelism but
 
 \begin{frame}
 \frametitle{Aggregation mechanism}
-\emph{AggregatedTransactionState} extends the TS object and aggregates
+\emph{AggregatedTransactionState} extends the TS class and aggregates
 two or more TSs ensuring the order of modifications.
 
 Maintain the existing system but aggregate blocked TSs according to
@@ -339,7 +339,7 @@ that:
 \begin{frame}
 \frametitle{GC service}
 
-Some operations in the TransactionState still take time to finish
+Some operations in the TransactionState still took time to finish
 prolonging the commit time and delaying other blocked TSs
 
 \begin{description}
@@ -474,7 +474,7 @@ Synthetic payload to process and commit, 100 applications requesting or releasin
 \hline
 \# commits & 9867 & \textbf{79} \\
 \hline
-AVG time/commit (ms) & \textbf{10.4} & 74.1 \\
+AVG time/TS commit (ms) & \textbf{10.4} & 74.1 \\
 \hline
 Time for all TXs (ms) & 21762 & \textbf{8088} \\
 \hline
@@ -549,7 +549,7 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 \item Garbage Collector service distributed among RT
 \item GC operations on primary keys
 \item Persist deltas instead of full information
-\item Improve the batching system of RPCs
+\item Improve the batching system for RPCs
 \end{itemize}
 \end{frame}
 
