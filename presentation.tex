@@ -61,6 +61,22 @@
 \end{frame}
 
 \section{Introduction}
+\subsection*{}
+\begin{frame}
+\frametitle{Motivation}
+
+\begin{itemize}
+\item Scale-out Hops-YARN to tens of thousands of NM
+\item Maximize cluster utilization
+\end{itemize}
+
+\centering
+\vfill
+``increasing utilization by a few percentage points can save millions
+of dollars''\footnote{Large-scale cluster management at Google with
+  Borg, Abhishek Verma et al.}
+\end{frame}
+
 \subsection{Hops}
 \begin{frame}
 \frametitle{Hops stack}
@@ -68,7 +84,7 @@ Hops is a new distribution of Apache Hadoop with:
 \begin{itemize}
 \item \emph{HopsWorks}, a web UI for Hops platform
 \item \emph{HopsFS} customized HDFS with distributed NameNodes
-\item \textbf{HopsYARN} customized, highly available version of Apache
+\item \textbf{Hops-YARN} customized, highly available version of Apache
   YARN, with distributed ResourceTrackers and minimum recovery time
 \item Other services like Kafka, Dr. Elephant, etc
 \end{itemize}
@@ -101,7 +117,7 @@ Hops is a new distribution of Apache Hadoop with:
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.17]{resources/hopsyarn_arch_components.png}
+\includegraphics[scale=0.21]{resources/hopsyarn_arch_components.png}
 \end{figure}
 \end{frame}
 
@@ -387,7 +403,7 @@ service run on Hops-YARN.
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.3]{resources/dto_create_commit_no_cache.png}
+\includegraphics[scale=0.35]{resources/dto_create_commit_no_cache.png}
 \caption{DTO \texttt{newInstance} and commit time}
 \end{figure}
 \end{frame}
@@ -416,7 +432,7 @@ service run on Hops-YARN.
 \frametitle{Caching mechanism}
 
 The cache generator service
-\begin{itemize}
+\begin{enumerate}
 \item Fetches a number of used cache-enabled DB sessions
 
 \item Creates threads that go through every session's cache and for
@@ -427,7 +443,7 @@ The cache generator service
   in the pool
 
 \item \texttt{GOTO} 1
-\end{itemize}
+\end{enumerate}
 
 Parameters of the service and the types of the DTOs to cache are
   configurable through an XML file
@@ -440,7 +456,7 @@ Parameters of the service and the types of the DTOs to cache are
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.2]{resources/db_session_pools.png}
+\includegraphics[scale=0.27]{resources/db_session_pools.png}
 \end{figure}
 \end{frame}
 
@@ -470,9 +486,15 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 \frametitle{Garbage Collector service}
 \begin{figure}
 \centering
-  \includegraphics[scale=0.27]{resources/async_commit_time.png}
-\hfill
-  \includegraphics[scale=0.27]{resources/async_cluster_util.png}
+  \includegraphics[scale=0.5]{resources/async_commit_time.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Garbage Collector service}
+\begin{figure}
+\centering
+  \includegraphics[scale=0.5]{resources/async_cluster_util.png}
 \end{figure}
 \end{frame}
 
@@ -482,7 +504,7 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.3]{resources/cache_create_commit.png}
+\includegraphics[scale=0.37]{resources/cache_create_commit.png}
 \caption{Micro-benchmark DTO creation and commit time}
 \end{figure}
 \end{frame}
@@ -492,7 +514,7 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{resources/avg_commit_cache_en_di.png}
+\includegraphics[scale=0.5]{resources/avg_commit_cache_en_di.png}
 \caption{Average TS commit time with cache enabled/disabled}
 \end{figure}
 \end{frame}
@@ -502,12 +524,57 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{resources/cluster_util_cache_en_di.png}
+\includegraphics[scale=0.48]{resources/cluster_util_cache_en_di.png}
 \caption{Cluster utilization with cache enabled/disabled}
 \end{figure}
 \end{frame}
 
-\subsection{General results}
+\subsection{The big picture}
+
+\begin{frame}
+\frametitle{Hops-YARN cluster utilization}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{resources/hopsyarn_cluster_util.png}
+\caption{Cluster utilization improvement}
+\end{figure}
+\end{frame}
+
+\section{Conclusions}
+\begin{frame}
+\frametitle{Future work}
+
+\begin{itemize}
+\item Garbage Collector service distributed among RT
+\item GC operations on primary keys
+\item Persist deltas instead of full information
+\item Improve the batching system of RPCs
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Thank you}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.2]{resources/hops_logo.png}
+\caption*{Hops}
+\end{figure}
+
+\end{frame}
+
+\appendix
+\begin{frame}
+\frametitle{Batching system}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.17]{resources/rpc_batch_system_activity.png}
+\caption{Activity diagram of batching system}
+\end{figure}
+\end{frame}
+
 \begin{frame}
 \frametitle{CPU utilization}
 
@@ -528,20 +595,4 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 \caption{RT CPU utilization 10k NM}
 \end{figure}
 \end{frame}
-
-\begin{frame}
-\frametitle{Hops-YARN cluster utilization}
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.4]{resources/hopsyarn_cluster_util.png}
-\caption{Cluster utilization improvement}
-\end{figure}
-\end{frame}
-
-\section{Conclusions}
-\begin{frame}
-\frametitle{Conclusions}
-\end{frame}
-
 \end{document}
