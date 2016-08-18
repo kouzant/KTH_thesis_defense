@@ -61,62 +61,6 @@
 \end{frame}
 
 \section{Introduction}
-\subsection{Hadoop}
-\begin{frame}
-\frametitle{Apache Hadoop}
-Open-source framework for distributed storage and processing of large
-datasets across clusters of computers
-\begin{itemize}
-\item \textbf{Hadoop Distributed File System (HDFS)}
-\item \textbf{Hadoop YARN}
-\item Apache MapReduce
-\item Apache Flink
-\item Apache HBase
-\item ...
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Apache YARN}
-Mainly consists of three entities:
-\begin{enumerate}
-\item<+-> \emph{ResourceManager} Central authority for scheduling
-  decisions and allocation of resources, handles heartbeats from NM
-  and AM, tracks their liveness
-
-\item<+-> \emph{NodeManager} Per-node ``worker'' daemon, monitoring the
-  health of the machine, responsible for application
-  containers. Heartbeats periodically the RM
-
-\item<+-> \emph{ApplicationMaster} Per-application process
-  coordinating the execution plan of the job, requesting or releasing
-  containers and monitors containers
-\end{enumerate}
-\end{frame}
-
-\begin{frame}
-\frametitle{Apache YARN architecture}
-\begin{figure}
-\centering
-\includegraphics[scale=0.4]{resources/yarn_architecture.eps}
-\end{figure}
-\tiny{*https://hadoop.apache.org/docs/r2.7.1/hadoop-yarn/hadoop-yarn-site/YARN.html}
-\end{frame}
-
-\begin{frame}
-\frametitle{HA \& failure recovery}
-\begin{itemize}
-\item Multiple RMs in an active/standby architecture coordinated by
-  Apache ZooKeeper
-
-\item Store applications' state in a persistent storage, usually
-  ZooKeeper
-
-\item When a RM transitions from standby to active, reads the state
-  from ZooKeeper and asks \textbf{every} NM and AM to resync
-\end{itemize}
-\end{frame}
-
 \subsection{Hops}
 \begin{frame}
 \frametitle{Hops stack}
@@ -161,7 +105,7 @@ Hops is a new distribution of Apache Hadoop with:
 \end{figure}
 \end{frame}
 
-
+\subsection{MySQL Cluster NDB}
 \begin{frame}
 \frametitle{MySQL Cluster}
 \begin{itemize}
@@ -175,6 +119,7 @@ Hops is a new distribution of Apache Hadoop with:
 \end{itemize}
 \end{frame}
 
+\subsection{Shared state schedulers}
 \begin{frame}
 \frametitle{Shared state schedulers}
 \textbf{\underline{Multiple}} schedulers running \textbf{\underline{different}} scheduling
@@ -500,8 +445,98 @@ Parameters of the service and the types of the DTOs to cache are
 \end{frame}
 
 \section{Results}
+\subsection{Aggregation mechanism}
 \begin{frame}
-\frametitle{Results}
+\frametitle{Compare Aggregation Mechanism}
+Synthetic payload to process and commit, 100 applications requesting or releasing
+1000 containers each randomly, tracked by TSs also randomly. \\[2em]
+
+\centering
+\begin{tabular}{| c | c | c | c |}
+\hline
+  & Simple & Aggregated \\
+\hline
+\# commits & 9867 & \textbf{79} \\
+\hline
+AVG time/commit (ms) & \textbf{10.4} & 74.1 \\
+\hline
+Time for all TXs (ms) & 21762 & \textbf{8088} \\
+\hline
+\end{tabular}
+\end{frame}
+
+\subsection{Garbage Collector service}
+\begin{frame}
+\frametitle{Garbage Collector service}
+\begin{figure}
+\centering
+  \includegraphics[scale=0.27]{resources/async_commit_time.png}
+\hfill
+  \includegraphics[scale=0.27]{resources/async_cluster_util.png}
+\end{figure}
+\end{frame}
+
+\subsection{Caching mechanism}
+\begin{frame}
+\frametitle{DTO caching}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{resources/cache_create_commit.png}
+\caption{Micro-benchmark DTO creation and commit time}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{DTO caching}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{resources/avg_commit_cache_en_di.png}
+\caption{Average TS commit time with cache enabled/disabled}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{DTO caching}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{resources/cluster_util_cache_en_di.png}
+\caption{Cluster utilization with cache enabled/disabled}
+\end{figure}
+\end{frame}
+
+\subsection{General results}
+\begin{frame}
+\frametitle{CPU utilization}
+
+\begin{figure}
+\centering
+
+\includegraphics[scale=0.3]{resources/RM_CPU_ALL_CPU.png}
+\caption{RM CPU utilization 10k NM}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{CPU utilization}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{resources/RT_CPU_ALL_CPU.png}
+\caption{RT CPU utilization 10k NM}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hops-YARN cluster utilization}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{resources/hopsyarn_cluster_util.png}
+\caption{Cluster utilization improvement}
+\end{figure}
 \end{frame}
 
 \section{Conclusions}
