@@ -66,7 +66,7 @@
 \frametitle{Motivation}
 
 \begin{itemize}
-\item Scale-out Hops-YARN to tens of thousands of NM
+\item Scale-out Hops-YARN to tens of thousands of nodes in a cluster
 \item Maximize cluster utilization
 \end{itemize}
 
@@ -86,7 +86,7 @@ Hops is a new distribution of Apache Hadoop with:
 \item \emph{HopsFS} customized HDFS with distributed NameNodes
 \item \textbf{Hops-YARN} customized, highly available version of Apache
   YARN, with distributed ResourceTrackers and minimum recovery time
-\item Other services like Kafka, Dr. Elephant, etc
+\item Other services like Kafka, Dr. Elephant, p2p datasets sharing etc
 \end{itemize}
 \end{frame}
 
@@ -96,7 +96,8 @@ Hops is a new distribution of Apache Hadoop with:
 \begin{itemize}
 \item Persist RM state in a distributed MySQL Cluster NDB
 
-\item Persist every single heartbeat from AM/NM and subsequent responses
+\item Persist every single heartbeat from
+  ApplicationMasters/NodeManagers and subsequent responses
 
 \item<2-> Standby is boring! Standby RMs act as ResourceTrackers
   receiving heartbeats from NM, load balancing the active RM
@@ -109,15 +110,6 @@ Hops is a new distribution of Apache Hadoop with:
 \begin{figure}
 \centering
 \includegraphics[scale=0.3]{resources/hopsyarn_arch_overview.png}
-\end{figure}
-\end{frame}
-
-\begin{frame}
-\frametitle{Hops-YARN architecture II}
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.21]{resources/hopsyarn_arch_components.png}
 \end{figure}
 \end{frame}
 
@@ -160,7 +152,7 @@ referential action.
 
 \begin{enumerate}
 \item {\color{red} Great} performance overhead
-\item Serialization of operations, a lot of {\color{red} flushes}
+\item Serialization of \texttt{INSERT} operations, a lot of {\color{red} flushes}
 \end{enumerate}
 \end{frame}
 
@@ -188,10 +180,10 @@ Replace all foreign key constraints with application logic that makes
 \textbf{primary key} operations.
 
 \begin{itemize}
-\item<+-> Primary keys are indexed in B-tree data structures, allows
-  operations in $O(\log{}n)$
-\item<+-> Primary keys in NDB are partition keys, avoid RTT among Data
-  Nodes
+\item<+-> Primary keys are indexed in hash and B-tree data structures, allows
+  operations in constant time or $O(\log{}n)$ depending on the query
+\item<+-> Primary keys in NDB are also partition keys, if no partition
+  keys are defined, avoiding RTT among Data Nodes
 \end{itemize}
 \end{frame}
 
@@ -215,17 +207,17 @@ Replace all foreign key constraints with application logic that makes
 
 \begin{frame}
 \frametitle{Transaction State}
-A \emph{Transaction State} object tracks all the modifications
+A \emph{Transaction State} (TS) object tracks all the modifications
 introduced by the RPCs, the scheduling decisions or Events from NDB
 
 \begin{enumerate}
-\item The method invoked gets that object and piggybacks it to the
+\item The method invoked gets the TS object and piggybacks it to the
   events triggered
-\item Each time a modification happens to the state of RM, we record
+\item Each time a modification happens to the state of the RM, we record
   it in the TS data structures
-\item The same object travels all along the RM
+\item The same TS object travels all along the journey
 \item When all events have been handled we put it in a \textbf{waiting
-    queue}, create a new TS object and a separate thread \textbf{tries} to commit in NDB
+    queue}, create a new TS object and a separate per-TS thread \textbf{tries} to commit in NDB
 \end{enumerate}
 
 \pause
@@ -316,7 +308,13 @@ two \emph{aggregation rules}
 
 \begin{figure}
 \centering
+\only<1>{
 \includegraphics[scale=0.5]{resources/commit_system_aggr_example.png}
+}
+
+\only<2>{
+\includegraphics[scale=0.5]{resources/commit_system_aggr_example_1.png}
+}
 \caption{Aggregation example}
 \end{figure}
 \end{frame}
@@ -395,7 +393,8 @@ service run on Hops-YARN.
 \pause
 \centering
 \vfill
-{\color{red} But ClusterJ uses Java Refection API to create DTOs}
+{\color{red} But ClusterJ uses the Java Reflection API to create\\ \textbf{D}ata
+  \textbf{T}ransfer \textbf{O}bjects}
 \end{frame}
 
 \begin{frame}
@@ -565,6 +564,15 @@ Time for all TXs (ms) & 21762 & \textbf{8088} \\
 \end{frame}
 
 \appendix
+\begin{frame}
+\frametitle{Hops-YARN architecture II}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.21]{resources/hopsyarn_arch_components.png}
+\end{figure}
+\end{frame}
+
 \begin{frame}
 \frametitle{Batching system}
 
